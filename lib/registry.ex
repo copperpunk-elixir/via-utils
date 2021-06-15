@@ -1,7 +1,10 @@
 defmodule ViaUtils.Registry do
   require Logger
 
-  def start_link do
+  def start_link() do
+    start_link([])
+  end
+  def start_link(_) do
     Logger.debug("Start ViaUtils.Registry")
     ViaUtils.Process.start_link_redundant(Registry, Registry, [keys: :unique, name: __MODULE__])
   end
