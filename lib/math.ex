@@ -47,6 +47,11 @@ defmodule ViaUtils.Math do
     end
   end
 
+  @spec apply_deadband(number(), number()) :: number()
+  def apply_deadband(value, deadband) do
+    if (value > deadband) or (value < -deadband), do: value, else: 0
+  end
+
   @spec hypot(number(), number()) :: float()
   def hypot(x, y) do
     :math.sqrt(x * x + y * y)
