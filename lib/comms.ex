@@ -30,10 +30,10 @@ defmodule ViaUtils.Comms do
     # We will be added to our own record of the group during the
     # :refresh_groups cycle
     Logger.warn("#{inspect(state.name)} is joining group: #{inspect(group)}")
-    :pg2.create(group)
+    # :pg.create(group)
 
     if !is_in_group?(group, process_id) do
-      :pg2.join(group, process_id)
+      :pg.join(group, process_id)
     end
 
     {:noreply, state}
@@ -44,7 +44,7 @@ defmodule ViaUtils.Comms do
     # We will be remove from our own record of the group during the
     # :refresh_groups cycle
     if is_in_group?(group, process_id) do
-      :pg2.leave(group, process_id)
+      :pg.leave(group, process_id)
     end
 
     {:noreply, state}
@@ -63,9 +63,9 @@ defmodule ViaUtils.Comms do
   @impl GenServer
   def handle_info(:refresh_groups, state) do
     groups =
-      Enum.reduce(:pg2.which_groups(), %{}, fn group, acc ->
-        all_group_members = :pg2.get_members(group)
-        local_group_members = :pg2.get_local_members(group)
+      Enum.reduce(:pg.which_groups(), %{}, fn group, acc ->
+        all_group_members = :pg.get_members(group)
+        local_group_members = :pg.get_local_members(group)
         Map.put(acc, group, %{global: all_group_members, local: local_group_members})
       end)
 
@@ -124,7 +124,7 @@ defmodule ViaUtils.Comms do
 
   def is_in_group?(group, pid) do
     members =
-      case :pg2.get_members(group) do
+      case :pg.get_members(group) do
         {:error, _} -> []
         members -> members
       end
