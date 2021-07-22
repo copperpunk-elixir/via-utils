@@ -54,13 +54,13 @@ defmodule ViaUtils.Motion do
     end
   end
 
-  @spec attitude_to_accel(map()) :: map()
-  def attitude_to_accel(attitude) do
-    cos_theta = :math.cos(attitude.pitch)
+  @spec attitude_to_accel_rad(map()) :: map()
+  def attitude_to_accel_rad(attitude) do
+    cos_theta = :math.cos(attitude.pitch_rad)
 
-    ax = -:math.sin(attitude.pitch)
-    ay = :math.sin(attitude.roll) * cos_theta
-    az = :math.cos(attitude.roll) * cos_theta
+    ax = -:math.sin(attitude.pitch_rad)
+    ay = -:math.sin(attitude.roll_rad) * cos_theta
+    az = -:math.cos(attitude.roll_rad) * cos_theta
 
     %{
       x: ax * VC.gravity(),

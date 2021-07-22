@@ -23,7 +23,7 @@ defmodule ViaUtils.Comms.Supervisor do
     })
   end
 
-  @spec start_operator(atom(), integer()) :: atom()
+  @spec start_operator(atom(), integer()) :: tuple()
   def start_operator(name, refresh_groups_loop_interval_ms \\ 1000) do
     DynamicSupervisor.start_child(
       __MODULE__,

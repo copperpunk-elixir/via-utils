@@ -2,6 +2,11 @@ defmodule ViaUtils.Comms do
     use GenServer
   require Logger
 
+  @spec start_unsupervised_operator(atom(), integer()) :: tuple()
+  def start_unsupervised_operator(name, refresh_groups_interval_ms \\ 1000) do
+    start_link([name: name, refresh_groups_loop_interval_ms: refresh_groups_interval_ms])
+  end
+
   def start_link(config) do
     name = Keyword.fetch!(config, :name)
     Logger.debug("Start ViaUtils.Comms: #{inspect(name)}")
