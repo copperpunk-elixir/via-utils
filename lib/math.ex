@@ -134,7 +134,7 @@ defmodule ViaUtils.Math do
     sign * (1 + significand / significand_div) * exp_mult
   end
 
-  @spec uint_from_fp(float(), integer) :: binary()
+  @spec uint_from_fp(number(), integer) :: binary()
   def uint_from_fp(x, bits) do
     {exponent_add, max_value, default_value, exp_min_index} =
       case bits do

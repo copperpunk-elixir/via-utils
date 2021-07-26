@@ -69,14 +69,14 @@ defmodule ViaUtils.Motion do
     }
   end
 
-  @spec inertial_to_body_euler(map(), tuple()) :: tuple()
-  def inertial_to_body_euler(attitude, vector) do
-    cosphi = :math.cos(attitude.roll)
-    sinphi = :math.sin(attitude.roll)
-    costheta = :math.cos(attitude.pitch)
-    sintheta = :math.sin(attitude.pitch)
-    cospsi = :math.cos(attitude.yaw)
-    sinpsi = :math.sin(attitude.yaw)
+  @spec inertial_to_body_euler_rad(map(), tuple()) :: tuple()
+  def inertial_to_body_euler_rad(attitude, vector) do
+    cosphi = :math.cos(attitude.roll_rad)
+    sinphi = :math.sin(attitude.roll_rad)
+    costheta = :math.cos(attitude.pitch_rad)
+    sintheta = :math.sin(attitude.pitch_rad)
+    cospsi = :math.cos(attitude.yaw_rad)
+    sinpsi = :math.sin(attitude.yaw_rad)
 
     {vx, vy, vz} = vector
 
