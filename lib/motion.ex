@@ -58,7 +58,7 @@ defmodule ViaUtils.Motion do
   def attitude_to_accel_rad(attitude) do
     cos_theta = :math.cos(attitude.pitch_rad)
 
-    ax = -:math.sin(attitude.pitch_rad)
+    ax = :math.sin(attitude.pitch_rad)
     ay = -:math.sin(attitude.roll_rad) * cos_theta
     az = -:math.cos(attitude.roll_rad) * cos_theta
 
@@ -91,6 +91,16 @@ defmodule ViaUtils.Motion do
         (sinphi * cospsi + cosphi * sintheta * sinpsi) * vy + cosphi * costheta * vz
 
     {bx, by, bz}
+  end
+
+  @spec inertial_to_body_euler_deg(map(), tuple()) :: tuple()
+  def inertial_to_body_euler_deg(attitude, vector) do
+    attitude_rad = %{
+      roll_rad: ViaUtils.Math.deg2rad(attitude.roll_deg),
+      pitch_rad: ViaUtils.Math.deg2rad(attitude.pitch_deg),
+      yaw_rad: ViaUtils.Math.deg2rad(attitude.yaw_deg)
+    }
+    inertial_to_body_euler_rad(attitude_rad, vector)
   end
 
   @spec quaternion_to_euler(float(), float(), float(), float()) :: map()
