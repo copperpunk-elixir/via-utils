@@ -47,6 +47,11 @@ defmodule ViaUtils.Math do
     end
   end
 
+  @spec map_value(number(), number(), number(), number(), number()) :: number()
+  def map_value(original_value, from_min_value, from_max_value, to_min_value, to_max_value) do
+    (original_value - from_min_value)*(to_max_value - to_min_value)/(from_max_value - from_min_value) + to_min_value
+  end
+
   @spec apply_deadband(number(), number()) :: number()
   def apply_deadband(value, deadband) do
     if (value > deadband) or (value < -deadband), do: value, else: 0
