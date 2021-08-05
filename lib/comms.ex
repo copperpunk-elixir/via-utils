@@ -153,4 +153,8 @@ defmodule ViaUtils.Comms do
   def via_tuple(name) do
     ViaUtils.Registry.via_tuple(__MODULE__, name)
   end
+
+
+  @spec start_operator(atom) :: {:error, any} | {:ok, pid} | {:ok, pid, any}
+  defdelegate start_operator(name), to: ViaUtils.Comms.Supervisor
 end
