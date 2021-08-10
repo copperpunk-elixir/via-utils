@@ -54,13 +54,13 @@ defmodule ViaUtils.Motion do
     end
   end
 
-  @spec attitude_to_accel(map()) :: map()
-  def attitude_to_accel(attitude) do
-    cos_theta = :math.cos(attitude.pitch)
+  @spec attitude_to_accel_rad(map()) :: map()
+  def attitude_to_accel_rad(attitude) do
+    cos_theta = :math.cos(attitude.pitch_rad)
 
-    ax = -:math.sin(attitude.pitch)
-    ay = :math.sin(attitude.roll) * cos_theta
-    az = :math.cos(attitude.roll) * cos_theta
+    ax = :math.sin(attitude.pitch_rad)
+    ay = -:math.sin(attitude.roll_rad) * cos_theta
+    az = -:math.cos(attitude.roll_rad) * cos_theta
 
     %{
       x: ax * VC.gravity(),
@@ -69,14 +69,14 @@ defmodule ViaUtils.Motion do
     }
   end
 
-  @spec inertial_to_body_euler(map(), tuple()) :: tuple()
-  def inertial_to_body_euler(attitude, vector) do
-    cosphi = :math.cos(attitude.roll)
-    sinphi = :math.sin(attitude.roll)
-    costheta = :math.cos(attitude.pitch)
-    sintheta = :math.sin(attitude.pitch)
-    cospsi = :math.cos(attitude.yaw)
-    sinpsi = :math.sin(attitude.yaw)
+  @spec inertial_to_body_euler_rad(map(), tuple()) :: tuple()
+  def inertial_to_body_euler_rad(attitude, vector) do
+    cosphi = :math.cos(attitude.roll_rad)
+    sinphi = :math.sin(attitude.roll_rad)
+    costheta = :math.cos(attitude.pitch_rad)
+    sintheta = :math.sin(attitude.pitch_rad)
+    cospsi = :math.cos(attitude.yaw_rad)
+    sinpsi = :math.sin(attitude.yaw_rad)
 
     {vx, vy, vz} = vector
 
@@ -91,6 +91,16 @@ defmodule ViaUtils.Motion do
         (sinphi * cospsi + cosphi * sintheta * sinpsi) * vy + cosphi * costheta * vz
 
     {bx, by, bz}
+  end
+
+  @spec inertial_to_body_euler_deg(map(), tuple()) :: tuple()
+  def inertial_to_body_euler_deg(attitude, vector) do
+    attitude_rad = %{
+      roll_rad: ViaUtils.Math.deg2rad(attitude.roll_deg),
+      pitch_rad: ViaUtils.Math.deg2rad(attitude.pitch_deg),
+      yaw_rad: ViaUtils.Math.deg2rad(attitude.yaw_deg)
+    }
+    inertial_to_body_euler_rad(attitude_rad, vector)
   end
 
   @spec quaternion_to_euler(float(), float(), float(), float()) :: map()
