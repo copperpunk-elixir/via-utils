@@ -7,7 +7,7 @@ defmodule ViaUtils.MixProject do
   def project do
     [
       app: :via_utils,
-      version: "0.1.1",
+      version: @version,
       elixir: "~> 1.12",
       description: description(),
       package: package(),
