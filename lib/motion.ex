@@ -6,16 +6,6 @@ defmodule ViaUtils.Motion do
   Documentation for `UtilsMotion`.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> UtilsMotion.hello()
-      :world
-
-  """
-
   # Convert North/East velocity to Speed/Course
   @spec get_speed_course_for_velocity(number(), number(), number(), number()) :: tuple()
   def get_speed_course_for_velocity(v_north, v_east, min_speed_for_course, yaw) do
@@ -55,12 +45,12 @@ defmodule ViaUtils.Motion do
   end
 
   @spec attitude_to_accel_rad(map()) :: map()
-  def attitude_to_accel_rad(attitude) do
-    cos_theta = :math.cos(attitude.pitch_rad)
+  def attitude_to_accel_rad(%{roll_rad: roll, pitch_rad: pitch}) do
+    cos_theta = :math.cos(pitch)
 
-    ax = :math.sin(attitude.pitch_rad)
-    ay = -:math.sin(attitude.roll_rad) * cos_theta
-    az = -:math.cos(attitude.roll_rad) * cos_theta
+    ax = :math.sin(pitch)
+    ay = -:math.sin(roll) * cos_theta
+    az = -:math.cos(roll) * cos_theta
 
     %{
       x: ax * VC.gravity(),
@@ -70,13 +60,13 @@ defmodule ViaUtils.Motion do
   end
 
   @spec inertial_to_body_euler_rad(map(), tuple()) :: tuple()
-  def inertial_to_body_euler_rad(attitude, vector) do
-    cosphi = :math.cos(attitude.roll_rad)
-    sinphi = :math.sin(attitude.roll_rad)
-    costheta = :math.cos(attitude.pitch_rad)
-    sintheta = :math.sin(attitude.pitch_rad)
-    cospsi = :math.cos(attitude.yaw_rad)
-    sinpsi = :math.sin(attitude.yaw_rad)
+  def inertial_to_body_euler_rad(%{roll_rad: roll, pitch_rad: pitch, yaw_rad: yaw}, vector) do
+    cosphi = :math.cos(roll)
+    sinphi = :math.sin(roll)
+    costheta = :math.cos(pitch)
+    sintheta = :math.sin(pitch)
+    cospsi = :math.cos(yaw)
+    sinpsi = :math.sin(yaw)
 
     {vx, vy, vz} = vector
 
@@ -94,12 +84,13 @@ defmodule ViaUtils.Motion do
   end
 
   @spec inertial_to_body_euler_deg(map(), tuple()) :: tuple()
-  def inertial_to_body_euler_deg(attitude, vector) do
+  def inertial_to_body_euler_deg(%{roll_deg: roll, pitch_deg: pitch, yaw_deg: yaw}, vector) do
     attitude_rad = %{
-      roll_rad: ViaUtils.Math.deg2rad(attitude.roll_deg),
-      pitch_rad: ViaUtils.Math.deg2rad(attitude.pitch_deg),
-      yaw_rad: ViaUtils.Math.deg2rad(attitude.yaw_deg)
+      roll_rad: ViaUtils.Math.deg2rad(roll),
+      pitch_rad: ViaUtils.Math.deg2rad(pitch),
+      yaw_rad: ViaUtils.Math.deg2rad(yaw)
     }
+
     inertial_to_body_euler_rad(attitude_rad, vector)
   end
 
@@ -117,13 +108,13 @@ defmodule ViaUtils.Motion do
       end
 
     %{
-      roll: roll,
-      pitch: pitch,
-      yaw: yaw
+      roll_rad: roll,
+      pitch_rad: pitch,
+      yaw_rad: yaw
     }
   end
 
-   @spec imu_rpy_to_string(struct(), integer()) :: binary()
+  @spec imu_rpy_to_string(struct(), integer()) :: binary()
   def imu_rpy_to_string(imu, decimals) do
     rpy =
       Enum.map([imu.roll_rad, imu.pitch_rad, imu.yaw_rad], fn x ->
