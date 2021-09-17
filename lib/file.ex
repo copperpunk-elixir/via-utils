@@ -25,7 +25,7 @@ defmodule ViaUtils.File do
     if error_code == 0 do
       :ok
     else
-      raise "Device at #{drive_location} could not be mounted to #{mount_path}"
+      Logger.error("Device at #{drive_location} could not be mounted to #{mount_path}")
     end
   end
 
@@ -66,5 +66,27 @@ defmodule ViaUtils.File do
       end)
 
     filenames
+  end
+
+  def read_file(filename, mount_path \\ default_mount_path()) do
+    case File.read(mount_path <> "/" <> filename) do
+      {:ok, result} ->
+        result
+
+      other ->
+        Logger.error("Read file error: #{inspect(other)}")
+        nil
+    end
+  end
+
+  def write_file(filename, mount_path \\ default_mount_path(), binary_to_write) do
+    case File.write(mount_path <> "/" <> filename, binary_to_write) do
+      :ok ->
+        :ok
+
+      other ->
+        Logger.error("Read file error: #{inspect(other)}")
+        nil
+    end
   end
 end
