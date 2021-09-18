@@ -3,18 +3,14 @@ defmodule ViaUtils.File do
   Documentation for `ViaUtils.File`.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> UtilsFile.hello()
-      :world
-
-  """
   require Logger
 
   defmacro default_mount_path, do: "/mnt"
+
+  @spec target?() :: boolean()
+  def target?() do
+    String.contains?(File.cwd!(), "/srv/erlang")
+  end
 
   @spec mount_usb_drive(binary(), binary()) :: atom()
   def mount_usb_drive(drive_location, mount_path \\ default_mount_path()) do
@@ -68,6 +64,18 @@ defmodule ViaUtils.File do
     filenames
   end
 
+  @spec read_file(binary, binary, boolean) :: nil | binary
+  def read_file(filename, mount_path, trim_trailing_newline) do
+    file_contents = ViaUtils.File.read_file(filename, mount_path)
+
+    cond do
+      is_nil(file_contents) -> nil
+      trim_trailing_newline -> String.trim_trailing(file_contents, "\n")
+      true -> file_contents
+    end
+  end
+
+  @spec read_file(binary, binary) :: nil | binary
   def read_file(filename, mount_path \\ default_mount_path()) do
     case File.read(mount_path <> "/" <> filename) do
       {:ok, result} ->
@@ -79,6 +87,7 @@ defmodule ViaUtils.File do
     end
   end
 
+  @spec write_file(binary(), binary(), binary()) :: nil | atom()
   def write_file(filename, mount_path \\ default_mount_path(), binary_to_write) do
     case File.write(mount_path <> "/" <> filename, binary_to_write) do
       :ok ->
@@ -88,5 +97,48 @@ defmodule ViaUtils.File do
         Logger.error("Read file error: #{inspect(other)}")
         nil
     end
+  end
+
+  @spec read_file_target(binary(), binary(), boolean(), boolean()) :: nil | binary()
+  def read_file_target(filename, mount_path, write_to_data, trim_trailing_newline) do
+    file_contents = read_file_target(filename, mount_path, write_to_data)
+
+    cond do
+      is_nil(file_contents) -> nil
+      trim_trailing_newline -> String.trim_trailing(file_contents, "\n")
+      true -> file_contents
+    end
+  end
+
+  @spec read_file_target(binary(), binary(), boolean()) :: nil | binary
+  def read_file_target(filename, mount_path, write_to_data \\ false) do
+    # First check USB drive, as this will override /data folder
+    file_contents_binary = ViaUtils.File.read_file(filename, mount_path)
+
+    Logger.debug(
+      "read_file_target: contents in #{filename} at #{mount_path}: #{file_contents_binary}"
+    )
+
+    file_contents_binary =
+      if !is_nil(file_contents_binary) do
+        file_contents_binary
+      else
+        Logger.debug("No #{filename} file found in #{mount_path}. Check /data.")
+        file_contents_binary = ViaUtils.File.read_file(filename, "/data")
+
+        Logger.debug(
+          "read_file_target: contents in #{filename} at #{mount_path}: #{file_contents_binary}"
+        )
+
+        if !is_nil(file_contents_binary) do
+          file_contents_binary
+        else
+          Logger.debug("No #{filename} file found in /data.")
+          nil
+        end
+      end
+
+    if write_to_data, do: :ok = ViaUtils.File.write_file(filename, "/data", file_contents_binary)
+    file_contents_binary
   end
 end
