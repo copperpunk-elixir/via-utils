@@ -138,7 +138,10 @@ defmodule ViaUtils.File do
         end
       end
 
-    if write_to_data, do: :ok = ViaUtils.File.write_file(filename, "/data", file_contents_binary)
+    if write_to_data and !is_nil(file_contents_binary) do
+      :ok = ViaUtils.File.write_file(filename, "/data", file_contents_binary)
+    end
+
     file_contents_binary
   end
 end
