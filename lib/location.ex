@@ -18,8 +18,8 @@ defmodule ViaUtils.Location do
   @enforce_keys [:latitude_rad, :longitude_rad, :altitude_m]
   defstruct [:latitude_rad, :longitude_rad, :altitude_m]
 
-  @spec new_location(number(), number(), number()) :: struct()
-  def new_location(lat, lon, alt \\ 0) do
+  @spec new(number(), number(), number()) :: struct()
+  def new(lat, lon, alt \\ 0) do
     %ViaUtils.Location{
       latitude_rad: lat,
       longitude_rad: lon,
@@ -27,9 +27,9 @@ defmodule ViaUtils.Location do
     }
   end
 
-  @spec new_location_input_degrees(number(), number(), number()) :: struct()
-  def new_location_input_degrees(lat, lon, alt \\ 0) do
-    new_location(ViaUtils.Math.deg2rad(lat), ViaUtils.Math.deg2rad(lon), alt)
+  @spec new_degrees(number(), number(), number()) :: struct()
+  def new_degrees(lat, lon, alt \\ 0) do
+    new(ViaUtils.Math.deg2rad(lat), ViaUtils.Math.deg2rad(lon), alt)
   end
 
   @spec to_string(struct()) :: binary()
@@ -89,7 +89,7 @@ defmodule ViaUtils.Location do
     dlon = dy / VC.earth_radius_m() / q
     lon2 = lon1 + dlon
     # {lat2, lon2}
-    new_location(lat2, lon2, starting_point.altitude_m)
+    new(lat2, lon2, starting_point.altitude_m)
   end
 
   @spec location_from_point_with_distance_bearing(struct(), float(), float()) :: struct()
