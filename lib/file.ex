@@ -94,7 +94,7 @@ defmodule ViaUtils.File do
         :ok
 
       other ->
-        Logger.error("Read file error: #{inspect(other)}")
+        Logger.error("Write file error: #{inspect(other)}")
         nil
     end
   end
