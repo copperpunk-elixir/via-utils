@@ -4,7 +4,7 @@ defmodule ViaUtils.Shared.Groups do
   defmacro controller_bodyrate_commands, do: :controller_bodyrate_commands
   defmacro controller_override_commands, do: :controller_override_commands
   defmacro command_channels, do: :command_channels
-  defmacro current_commands_for_pilot_control_level, do: :current_commands_for_pcl
+  defmacro commands_for_current_pilot_control_level, do: :commands_for_current_pcl
   defmacro commands_for_any_pilot_control_level, do: :commands_for_any_pcl
   defmacro current_pilot_control_level_and_commands, do: :current_pcl_and_commands
   defmacro downward_tof_distance_val, do: :downward_tof_distance_val

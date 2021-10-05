@@ -14,16 +14,16 @@ defmodule ViaUtils.Location do
   """
   require Logger
   require ViaUtils.Constants, as: VC
+  require ViaUtils.Shared.ValueNames, as: SVN
 
-  @enforce_keys [:latitude_rad, :longitude_rad, :altitude_m]
-  defstruct [:latitude_rad, :longitude_rad, :altitude_m]
+  defstruct [SVN.latitude_rad(), SVN.longitude_rad(), SVN.altitude_m()]
 
   @spec new(number(), number(), number()) :: struct()
   def new(lat, lon, alt \\ 0) do
     %ViaUtils.Location{
-      latitude_rad: lat,
-      longitude_rad: lon,
-      altitude_m: alt
+      SVN.latitude_rad() => lat,
+      SVN.longitude_rad() => lon,
+      SVN.altitude_m() => alt
     }
   end
 
@@ -33,16 +33,22 @@ defmodule ViaUtils.Location do
   end
 
   @spec to_string(struct()) :: binary()
-  def to_string(location) do
-    lat_str = ViaUtils.Format.eftb(ViaUtils.Math.rad2deg(location.latitude_rad), 5)
-    lon_str = ViaUtils.Format.eftb(ViaUtils.Math.rad2deg(location.longitude_rad), 5)
-    alt_str = ViaUtils.Format.eftb(location.altitude_m, 1)
+  def to_string(
+        %{SVN.latitude_rad() => lat, SVN.longitude_rad() => lon, SVN.altitude_m() => alt} =
+          _location
+      ) do
+    lat_str = ViaUtils.Format.eftb(ViaUtils.Math.rad2deg(lat), 5)
+    lon_str = ViaUtils.Format.eftb(ViaUtils.Math.rad2deg(lon), 5)
+    alt_str = ViaUtils.Format.eftb(alt, 1)
     "lat/lon/alt: #{lat_str}/#{lon_str}/#{alt_str}"
   end
 
   @spec dx_dy_between_points(struct(), struct()) :: tuple()
-  def dx_dy_between_points(wp1, wp2) do
-    dx_dy_between_points(wp1.latitude_rad, wp1.longitude_rad, wp2.latitude_rad, wp2.longitude_rad)
+  def dx_dy_between_points(
+        %{SVN.latitude_rad() => lat1, SVN.longitude_rad() => lon1} = _wp1,
+        %{SVN.latitude_rad() => lat2, SVN.longitude_rad() => lon2} = _wp2
+      ) do
+    dx_dy_between_points(lat1, lon1, lat2, lon2)
   end
 
   @spec dx_dy_between_points(float(), float(), float(), float()) :: tuple()
@@ -72,9 +78,12 @@ defmodule ViaUtils.Location do
   end
 
   @spec location_from_point_with_dx_dy(struct(), float(), float()) :: struct()
-  def location_from_point_with_dx_dy(starting_point, dx, dy) do
-    lat1 = starting_point.latitude_rad
-    lon1 = starting_point.longitude_rad
+  def location_from_point_with_dx_dy(
+        %{SVN.latitude_rad() => lat1, SVN.longitude_rad() => lon1, SVN.altitude_m() => alt1} =
+          _starting_point,
+        dx,
+        dy
+      ) do
     dlat = dx / VC.earth_radius_m()
     lat2 = lat1 + dlat
     dpsi = :math.log(:math.tan(VC.pi_4() + lat2 / 2) / :math.tan(VC.pi_4() + lat1 / 2))
@@ -89,7 +98,7 @@ defmodule ViaUtils.Location do
     dlon = dy / VC.earth_radius_m() / q
     lon2 = lon1 + dlon
     # {lat2, lon2}
-    new(lat2, lon2, starting_point.altitude_m)
+    new(lat2, lon2, alt1)
   end
 
   @spec location_from_point_with_distance_bearing(struct(), float(), float()) :: struct()
