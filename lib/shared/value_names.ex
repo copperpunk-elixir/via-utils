@@ -17,6 +17,10 @@ defmodule ViaUtils.Shared.ValueNames do
   defmacro pitch_rad, do: :pitch_rad
   defmacro pitchrate_rps, do: :pitchrate_rps
   defmacro position_rrm, do: :position_rrm
+  defmacro quat_w, do: :quat_w
+  defmacro quat_x, do: :quat_x
+  defmacro quat_y, do: :quat_y
+  defmacro quat_z, do: :quat_z
   defmacro roll_rad, do: :roll_rad
   defmacro rollrate_rps, do: :rollrate_rps
   defmacro v_north_mps, do: :v_north_mps

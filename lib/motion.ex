@@ -1,6 +1,7 @@
 defmodule ViaUtils.Motion do
   require Logger
   require ViaUtils.Constants, as: VC
+  require ViaUtils.Shared.ValueNames, as: SVN
 
   @moduledoc """
   Documentation for `UtilsMotion`.
@@ -8,29 +9,34 @@ defmodule ViaUtils.Motion do
 
   # Convert North/East velocity to Speed/Course
   @spec get_speed_course_for_velocity(number(), number(), number(), number()) :: tuple()
-  def get_speed_course_for_velocity(v_north, v_east, min_speed_for_course, yaw) do
-    speed = ViaUtils.Math.hypot(v_north, v_east)
+  def get_speed_course_for_velocity(v_north_mps, v_east_mps, min_speed_for_course_mps, yaw_rad) do
+    speed = ViaUtils.Math.hypot(v_north_mps, v_east_mps)
 
     course =
-      if speed >= min_speed_for_course do
-        :math.atan2(v_east, v_north)
+      if speed >= min_speed_for_course_mps do
+        :math.atan2(v_east_mps, v_north_mps)
         |> ViaUtils.Math.constrain_angle_to_compass()
       else
         # Logger.info("too slow: #{speed}")
-        yaw
+        yaw_rad
       end
 
     {speed, course}
   end
 
   @spec adjust_velocity_for_min_speed(map(), number(), number()) :: map()
-  def adjust_velocity_for_min_speed(velocity, min_speed_for_course, yaw) do
-    speed = ViaUtils.Math.hypot(velocity.north, velocity.east)
+  def adjust_velocity_for_min_speed(velocity_mps, min_speed_for_course_mps, yaw_rad) do
+    %{SVN.v_north_mps() => v_north, SVN.v_east_mps() => v_east} = velocity_mps
+    speed = ViaUtils.Math.hypot(v_north, v_east)
 
-    if speed >= min_speed_for_course do
-      velocity
+    if speed >= min_speed_for_course_mps do
+      velocity_mps
     else
-      %{velocity | north: speed * :math.cos(yaw), east: speed * :math.sin(yaw)}
+      %{
+        velocity_mps
+        | SVN.v_north_mps() => speed * :math.cos(yaw_rad),
+          SVN.v_east_mps() => speed * :math.sin(yaw_rad)
+      }
     end
   end
 
@@ -44,8 +50,9 @@ defmodule ViaUtils.Motion do
     end
   end
 
-  @spec attitude_to_accel_rad(map()) :: map()
-  def attitude_to_accel_rad(%{roll_rad: roll, pitch_rad: pitch}) do
+  @spec attitude_to_accel(map()) :: map()
+  def attitude_to_accel(attitude_rad) do
+    %{SVN.roll_rad() => roll, SVN.pitch_rad() => pitch} = attitude_rad
     cos_theta = :math.cos(pitch)
 
     ax = :math.sin(pitch)
@@ -53,14 +60,15 @@ defmodule ViaUtils.Motion do
     az = -:math.cos(roll) * cos_theta
 
     %{
-      x: ax * VC.gravity(),
-      y: ay * VC.gravity(),
-      z: az * VC.gravity()
+      SVN.accel_x_mpss() => ax * VC.gravity(),
+      SVN.accel_y_mpss() => ay * VC.gravity(),
+      SVN.accel_z_mpss() => az * VC.gravity()
     }
   end
 
   @spec inertial_to_body_euler_rad(map(), tuple()) :: tuple()
-  def inertial_to_body_euler_rad(%{roll_rad: roll, pitch_rad: pitch, yaw_rad: yaw}, vector) do
+  def inertial_to_body_euler_rad(attitude_rad, vector) do
+    %{SVN.roll_rad() => roll, SVN.pitch_rad() => pitch, SVN.yaw_rad() => yaw} = attitude_rad
     cosphi = :math.cos(roll)
     sinphi = :math.sin(roll)
     costheta = :math.cos(pitch)
@@ -84,11 +92,13 @@ defmodule ViaUtils.Motion do
   end
 
   @spec inertial_to_body_euler_deg(map(), tuple()) :: tuple()
-  def inertial_to_body_euler_deg(%{roll_deg: roll, pitch_deg: pitch, yaw_deg: yaw}, vector) do
+  def inertial_to_body_euler_deg(attitude_deg, vector) do
+    %{roll_deg: roll, pitch_deg: pitch, yaw_deg: yaw} = attitude_deg
+
     attitude_rad = %{
-      roll_rad: ViaUtils.Math.deg2rad(roll),
-      pitch_rad: ViaUtils.Math.deg2rad(pitch),
-      yaw_rad: ViaUtils.Math.deg2rad(yaw)
+      SVN.roll_rad() => ViaUtils.Math.deg2rad(roll),
+      SVN.pitch_rad() => ViaUtils.Math.deg2rad(pitch),
+      SVN.yaw_rad() => ViaUtils.Math.deg2rad(yaw)
     }
 
     inertial_to_body_euler_rad(attitude_rad, vector)
@@ -107,11 +117,7 @@ defmodule ViaUtils.Motion do
         true -> yaw
       end
 
-    %{
-      roll_rad: roll,
-      pitch_rad: pitch,
-      yaw_rad: yaw
-    }
+    %{SVN.roll_rad() => roll, SVN.pitch_rad() => pitch, SVN.yaw_rad() => yaw}
   end
 
   @spec imu_rpy_to_string(struct(), integer()) :: binary()
