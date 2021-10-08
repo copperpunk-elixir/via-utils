@@ -1,8 +1,10 @@
 defmodule ViaUtils.Shared.GoalNames do
   defmacro course_rate_rps(), do: :course_rate_rps
-  defmacro altitude_rate_mps(), do: :altitude_rate_rps
+  defmacro altitude_rate_mps(), do: :altitude_rate_mps
   defmacro groundspeed_mps(), do: :groundspeed_mps
   defmacro sideslip_rad(), do: :sideslip_rad
+  defmacro altitude_m(), do: :altitude_m
+  defmacro course_rad(), do: :course_rad
   defmacro roll_rad(), do: :roll_rad
   defmacro pitch_rad(), do: :pitch_rad
   defmacro deltayaw_rad(), do: :deltayaw_rad

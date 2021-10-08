@@ -47,14 +47,25 @@ defmodule ViaUtils.Math do
     end
   end
 
+  @spec round_to_decimal_place(number(), integer()) :: number()
+  def round_to_decimal_place(value, decimal) do
+    round(value * :math.pow(10, decimal)) / :math.pow(10, decimal)
+  end
+
+  @spec round_to_multiplier(number(), number()) :: number()
+  def round_to_multiplier(value, multiplier) do
+    round(value * multiplier) / multiplier
+  end
+
   @spec map_value(number(), number(), number(), number(), number()) :: number()
   def map_value(original_value, from_min_value, from_max_value, to_min_value, to_max_value) do
-    (original_value - from_min_value)*(to_max_value - to_min_value)/(from_max_value - from_min_value) + to_min_value
+    (original_value - from_min_value) * (to_max_value - to_min_value) /
+      (from_max_value - from_min_value) + to_min_value
   end
 
   @spec apply_deadband(number(), number()) :: number()
   def apply_deadband(value, deadband) do
-    if (value > deadband) or (value < -deadband), do: value, else: 0
+    if value > deadband or value < -deadband, do: value, else: 0
   end
 
   @spec hypot(number(), number()) :: float()
@@ -102,6 +113,16 @@ defmodule ViaUtils.Math do
       angle >= 2.0 * :math.pi() -> angle - 2.0 * :math.pi()
       true -> angle
     end
+  end
+
+  @spec constrain_angle_to_compass_with_deadband(number(), number()) :: number()
+  def constrain_angle_to_compass_with_deadband(angle, deadband) do
+    cond do
+      angle < -deadband -> angle + 2.0 * :math.pi()
+      angle >= (2.0 * :math.pi() - deadband) -> angle - 2.0 * :math.pi()
+      true -> angle
+    end
+
   end
 
   def integer_power(x, pow) do
