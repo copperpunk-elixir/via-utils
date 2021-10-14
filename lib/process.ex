@@ -85,7 +85,11 @@ defmodule ViaUtils.Process do
     end
   end
 
-  def start_loop(process_id, loop_interval_ms, loop_callback) do
+  def start_loop(process_id, loop_interval_ms, loop_callback, send_right_away \\ false) do
+    if send_right_away do
+      send(process_id, loop_callback)
+    end
+
     case :timer.send_interval(loop_interval_ms, process_id, loop_callback) do
       {:ok, timer} ->
         # Logger.debug("#{inspect(loop_callback)} timer started!")

@@ -34,11 +34,15 @@ defmodule ViaUtils.Comms do
   def handle_cast({:join_group, group, process_id}, state) do
     # We will be added to our own record of the group during the
     # :refresh_groups cycle
-    Logger.warn("#{inspect(state.name)} is joining group: #{inspect(group)}")
+    Logger.warn(
+      "#{inspect(state.name)} at #{inspect(process_id)} is joining group: #{inspect(group)}"
+    )
+
     # :pg.create(group)
 
     if !is_in_group?(group, process_id) do
       :pg.join(group, process_id)
+      :erlang.send_after(20, self(), :refresh_groups)
     end
 
     {:noreply, state}
@@ -57,10 +61,15 @@ defmodule ViaUtils.Comms do
 
   @impl GenServer
   def handle_cast({:send_msg_to_group, message, group, sender, global_or_local}, state) do
-    # Logger.debug("send_msg. group: #{inspect(group)}")
     group_members = get_group_members(state.groups, group, global_or_local)
-    # Logger.debug("op pid: #{inspect(self())}")
-    # Logger.debug("Group members: #{inspect(group_members)}")
+
+    # if group == :load_mission do
+    #   Logger.debug("groups: #{inspect(state.groups)}")
+    #   Logger.debug("send_msg. group: #{inspect(group)}/#{global_or_local}")
+    #   Logger.debug("op pid: #{inspect(self())}")
+    #   Logger.debug("Group members: #{inspect(group_members)}")
+    # end
+
     send_msg_to_group_members(message, group_members, sender)
     {:noreply, state}
   end
@@ -71,10 +80,14 @@ defmodule ViaUtils.Comms do
       Enum.reduce(:pg.which_groups(), %{}, fn group, acc ->
         all_group_members = :pg.get_members(group)
         local_group_members = :pg.get_local_members(group)
+
         Map.put(acc, group, %{global: all_group_members, local: local_group_members})
       end)
 
-    # Logger.debug("#{inspect(state.name)} groups after refresh: #{inspect(groups)}")
+    # if state.name == ViaDisplayScenic.Planner do
+    #   Logger.debug("#{inspect(state.name)} groups after refresh: #{inspect(groups)}")
+    # end
+
     {:noreply, %{state | groups: groups}}
   end
 
@@ -148,7 +161,6 @@ defmodule ViaUtils.Comms do
   def via_tuple(name) do
     ViaUtils.Registry.via_tuple(__MODULE__, name)
   end
-
 
   @spec start_operator(atom) :: {:error, any} | {:ok, pid} | {:ok, pid, any}
   defdelegate start_operator(name), to: ViaUtils.Comms.Supervisor

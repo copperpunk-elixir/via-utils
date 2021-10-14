@@ -1,12 +1,14 @@
 defmodule ViaUtils.Shared.Groups do
   defmacro airspeed_val, do: :airspeed_val
   defmacro autopilot_control_mode, do: :autopilot_control_mode
+  defmacro clear_mission, do: :clear_mission
   defmacro controller_bodyrate_commands, do: :controller_bodyrate_commands
   defmacro controller_override_commands, do: :controller_override_commands
   defmacro command_channels, do: :command_channels
   defmacro commands_for_current_pilot_control_level, do: :commands_for_current_pcl
   defmacro commands_for_any_pilot_control_level, do: :commands_for_any_pcl
   defmacro current_pilot_control_level_and_commands, do: :current_pcl_and_commands
+  defmacro display_mission, do: :display_mission
   defmacro downward_tof_distance_val, do: :downward_tof_distance_val
   defmacro dt_accel_gyro_val, do: :dt_accel_gyro_val
   defmacro estimation_attitude, do: {:estimation_values, :attitude}
@@ -21,7 +23,7 @@ defmodule ViaUtils.Shared.Groups do
   defmacro gps_itow_relheading_val, do: :gps_relhdg_val
 
   defmacro host_ip_address, do: :host_ip_address
-
+  defmacro load_mission, do: :load_mission
   defmacro message_sorter_value, do: :message_sorter_value
   defmacro realflight_ip_address, do: :realflight_ip_address
   defmacro remote_pilot_override_commands, do: :remote_pilot_override_commands
