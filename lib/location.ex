@@ -37,7 +37,7 @@ defmodule ViaUtils.Location do
     Map.from_struct(location)
   end
 
-  @spec to_string(struct()) :: binary()
+  @spec to_string(map()) :: binary()
   def to_string(
         %{SVN.latitude_rad() => lat, SVN.longitude_rad() => lon, SVN.altitude_m() => alt} =
           _location
