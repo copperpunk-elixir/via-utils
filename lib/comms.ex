@@ -7,6 +7,9 @@ defmodule ViaUtils.Comms do
     start_link(name: name, refresh_groups_loop_interval_ms: refresh_groups_interval_ms)
   end
 
+  @spec start_operator(atom) :: {:error, any} | {:ok, pid} | {:ok, pid, any}
+  defdelegate start_operator(name), to: ViaUtils.Comms.Supervisor
+
   def start_link(config) do
     name = Keyword.fetch!(config, :name)
     Logger.debug("Start ViaUtils.Comms: #{inspect(name)}")
@@ -27,6 +30,7 @@ defmodule ViaUtils.Comms do
       :refresh_groups
     )
 
+    Logger.debug("Comms.Operator #{inspect(config[:name])} started at #{inspect(self())}")
     {:ok, state}
   end
 
@@ -60,17 +64,19 @@ defmodule ViaUtils.Comms do
   end
 
   @impl GenServer
-  def handle_cast({:send_msg_to_group, message, group, sender, global_or_local}, state) do
+  def handle_cast(
+        {:deliver_msg_to_group, delivery_method, global_or_local, message, sender, group},
+        state
+      ) do
+    delivery_function =
+      case delivery_method do
+        :send -> fn dest, msg -> send(dest, msg) end
+        :cast -> fn dest, msg -> GenServer.cast(dest, msg) end
+      end
+
     group_members = get_group_members(state.groups, group, global_or_local)
 
-    # if group == :load_mission do
-    #   Logger.debug("groups: #{inspect(state.groups)}")
-    #   Logger.debug("send_msg. group: #{inspect(group)}/#{global_or_local}")
-    #   Logger.debug("op pid: #{inspect(self())}")
-    #   Logger.debug("Group members: #{inspect(group_members)}")
-    # end
-
-    send_msg_to_group_members(message, group_members, sender)
+    deliver_msg_to_group_members(delivery_function, message, group_members, sender)
     {:noreply, state}
   end
 
@@ -83,10 +89,6 @@ defmodule ViaUtils.Comms do
 
         Map.put(acc, group, %{global: all_group_members, local: local_group_members})
       end)
-
-    # if state.name == ViaDisplayScenic.Planner do
-    #   Logger.debug("#{inspect(state.name)} groups after refresh: #{inspect(groups)}")
-    # end
 
     {:noreply, %{state | groups: groups}}
   end
@@ -107,43 +109,81 @@ defmodule ViaUtils.Comms do
     GenServer.cast(via_tuple(operator_name), {:leave_group, group, self()})
   end
 
-  @spec send_local_msg_to_group(atom(), any(), any(), any()) :: atom()
-  def send_local_msg_to_group(operator_name, message, group, sender) do
-    GenServer.cast(via_tuple(operator_name), {:send_msg_to_group, message, group, sender, :local})
-  end
+  def deliver_msg_to_group(
+        operator_name,
+        delivery_method,
+        message,
+        sender,
+        group,
+        global_or_local
+      ) do
+    group =
+      if is_nil(group) do
+        if is_tuple(message), do: elem(message, 0), else: message
+      else
+        group
+      end
 
-  @spec send_local_msg_to_group(atom(), tuple(), any()) :: atom()
-  def send_local_msg_to_group(operator_name, message, sender) do
-    # Logger.debug("send to group: #{elem(message, 0)}: #{inspect(message)}")
     GenServer.cast(
       via_tuple(operator_name),
-      {:send_msg_to_group, message, elem(message, 0), sender, :local}
+      {:deliver_msg_to_group, delivery_method, global_or_local, message, sender, group}
+    )
+  end
+
+  @spec send_local_msg_to_group(atom(), any(), any(), any()) :: atom()
+  def send_local_msg_to_group(operator_name, message, sender, group \\ nil) do
+    deliver_msg_to_group(
+      operator_name,
+      :send,
+      message,
+      sender,
+      group,
+      :local
     )
   end
 
   @spec send_global_msg_to_group(atom(), any(), any(), any()) :: atom()
-  def send_global_msg_to_group(operator_name, message, group, sender) do
-    # Logger.debug("send global: #{inspect(message)}")
-    GenServer.cast(
-      via_tuple(operator_name),
-      {:send_msg_to_group, message, group, sender, :global}
+  def send_global_msg_to_group(operator_name, message, sender, group \\ nil) do
+    deliver_msg_to_group(
+      operator_name,
+      :send,
+      message,
+      sender,
+      group,
+      :global
     )
   end
 
-  @spec send_global_msg_to_group(atom(), tuple(), any()) :: atom()
-  def send_global_msg_to_group(operator_name, message, sender) do
-    # Logger.debug("send global: #{inspect(message)}")
-    GenServer.cast(
-      via_tuple(operator_name),
-      {:send_msg_to_group, message, elem(message, 0), sender, :global}
+  @spec cast_local_msg_to_group(atom(), any(), any(), any()) :: atom()
+  def cast_local_msg_to_group(operator_name, message, sender, group \\ nil) do
+    deliver_msg_to_group(
+      operator_name,
+      :cast,
+      message,
+      sender,
+      group,
+      :local
     )
   end
 
-  defp send_msg_to_group_members(message, group_members, sender) do
+  @spec cast_global_msg_to_group(atom(), any(), any(), any()) :: atom()
+  def cast_global_msg_to_group(operator_name, message, sender, group \\ nil) do
+    deliver_msg_to_group(
+      operator_name,
+      :cast,
+      message,
+      sender,
+      group,
+      :global
+    )
+  end
+
+  defp deliver_msg_to_group_members(delivery_function, message, group_members, sender) do
     Enum.each(group_members, fn dest ->
       if dest != sender do
         # Logger.debug("Send #{inspect(message)} to #{inspect(dest)}")
-        GenServer.cast(dest, message)
+        delivery_function.(dest, message)
+        # GenServer.cast(dest, message)
       end
     end)
   end
@@ -161,7 +201,4 @@ defmodule ViaUtils.Comms do
   def via_tuple(name) do
     ViaUtils.Registry.via_tuple(__MODULE__, name)
   end
-
-  @spec start_operator(atom) :: {:error, any} | {:ok, pid} | {:ok, pid, any}
-  defdelegate start_operator(name), to: ViaUtils.Comms.Supervisor
 end
