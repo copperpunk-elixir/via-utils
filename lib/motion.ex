@@ -129,4 +129,11 @@ defmodule ViaUtils.Motion do
 
     ViaUtils.Format.eftb_list(rpy, decimals)
   end
+
+  @spec agl_to_range_measurement(map(), number()) :: number()
+  def agl_to_range_measurement(attitude_rad, agl) do
+    %{SVN.roll_rad() => roll_rad, SVN.pitch_rad() => pitch_rad} = attitude_rad
+    range_meas = agl / (:math.cos(roll_rad) * :math.cos(pitch_rad))
+    if range_meas < 0, do: 0, else: range_meas
+  end
 end

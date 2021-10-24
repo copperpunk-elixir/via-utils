@@ -9,7 +9,7 @@ defmodule ViaUtils.Shared.Groups do
   defmacro commands_for_any_pilot_control_level, do: :commands_for_any_pcl
   defmacro current_pilot_control_level_and_commands, do: :current_pcl_and_commands
   defmacro display_mission, do: :display_mission
-  defmacro downward_tof_distance_val, do: :downward_tof_distance_val
+  defmacro downward_range_distance_val, do: :downward_range_distance_val
   defmacro dt_accel_gyro_val, do: :dt_accel_gyro_val
   defmacro estimation_attitude, do: {:estimation_values, :attitude}
 
@@ -34,4 +34,9 @@ defmodule ViaUtils.Shared.Groups do
   defmacro sorter_pilot_control_level_and_goals, do: :sorter_pcl_and_goals
   defmacro speed_course_altitude_sideslip_cmd, do: :scas_cmd
   defmacro speed_courserate_altituderate_sideslip_cmd, do: :s_cdot_adot_s_cmd
+  defmacro virtual_uart_downward_range, do: :virtual_uart_downward_range
+  defmacro virtual_uart_dt_accel_gyro, do: :virtual_uart_dt_accel_gyro
+  defmacro virtual_uart_gps, do: :virtual_uart_gps
+  defmacro virtual_uart_command_rx, do: :virtual_uart_command_rx
+  defmacro virtual_uart_companion, do: :virtual_uart_companion
 end
