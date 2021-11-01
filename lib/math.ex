@@ -119,10 +119,19 @@ defmodule ViaUtils.Math do
   def constrain_angle_to_compass_with_deadband(angle, deadband) do
     cond do
       angle < -deadband -> angle + 2.0 * :math.pi()
-      angle >= (2.0 * :math.pi() - deadband) -> angle - 2.0 * :math.pi()
+      angle >= 2.0 * :math.pi() - deadband -> angle - 2.0 * :math.pi()
       true -> angle
     end
+  end
 
+  @spec get_one_sided_from_two_sided(number()) :: number()
+  def get_one_sided_from_two_sided(two_sided_value) do
+    0.5 * two_sided_value + 0.5
+  end
+
+  @spec get_two_sided_from_one_sided(number()) :: number()
+  def get_two_sided_from_one_sided(one_sided_value) do
+    2 * one_sided_value - 1
   end
 
   def integer_power(x, pow) do

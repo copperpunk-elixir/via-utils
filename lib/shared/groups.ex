@@ -3,7 +3,7 @@ defmodule ViaUtils.Shared.Groups do
   defmacro autopilot_control_mode, do: :autopilot_control_mode
   defmacro clear_mission, do: :clear_mission
   defmacro controller_bodyrate_commands, do: :controller_bodyrate_commands
-  defmacro controller_override_commands, do: :controller_override_commands
+  defmacro controller_direct_actuator_output, do: :controller_direct_actuator_output
   defmacro command_channels, do: :command_channels
   defmacro commands_for_current_pilot_control_level, do: :commands_for_current_pcl
   defmacro commands_for_any_pilot_control_level, do: :commands_for_any_pcl
@@ -39,4 +39,5 @@ defmodule ViaUtils.Shared.Groups do
   defmacro virtual_uart_gps, do: :virtual_uart_gps
   defmacro virtual_uart_command_rx, do: :virtual_uart_command_rx
   defmacro virtual_uart_companion, do: :virtual_uart_companion
+  defmacro virtual_uart_actuator_output, do: :virtual_uart_actuator_output
 end
