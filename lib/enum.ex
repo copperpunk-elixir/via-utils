@@ -1,4 +1,6 @@
 defmodule ViaUtils.Enum do
+  require Logger
+
   @moduledoc """
   Documentation for `UtilsEnum`.
   """
@@ -28,9 +30,19 @@ defmodule ViaUtils.Enum do
     |> Map.new()
   end
 
-  def list_to_int(x_list, bytes) do
-    Enum.reduce(0..(bytes - 1), 0, fn index, acc ->
-      acc + (Enum.at(x_list, index) <<< (8 * index))
+  def list_to_int_little_end(x_list) do
+    {value, _} =
+      Enum.reduce(x_list, {0, 0}, fn byte, {value_acc, index} ->
+        # Logger.debug("byte/index/acc: #{byte}/#{index}/#{value_acc}")
+        {value_acc + (byte <<< (8 * index)), index + 1}
+      end)
+
+    value
+  end
+
+  def list_to_int_big_end(x_list) do
+    Enum.reduce(x_list, 0, fn x, acc ->
+      (acc <<< 8) + x
     end)
   end
 
