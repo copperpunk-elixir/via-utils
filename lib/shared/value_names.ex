@@ -33,9 +33,10 @@ defmodule ViaUtils.Shared.ValueNames do
   defmacro rollrate_rps, do: :rollrate_rps
   defmacro time_since_boot_s, do: :time_since_boot_s
   defmacro velocity_mps, do: :velocity_mps
-  defmacro v_north_mps, do: :v_north_mps
-  defmacro v_east_mps, do: :v_east_mps
   defmacro v_down_mps, do: :v_down_mps
+  defmacro v_east_mps, do: :v_east_mps
+  defmacro v_north_mps, do: :v_north_mps
+  defmacro vehicle_id, do: :vehicle_id
   defmacro vertical_velocity_mps, do: :vertical_velocity_mps
   defmacro yaw_rad, do: :yaw_rad
   defmacro yawrate_rps, do: :yawrate_rps

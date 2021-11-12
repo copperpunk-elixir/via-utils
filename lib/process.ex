@@ -145,4 +145,9 @@ defmodule ViaUtils.Process do
       callback
     )
   end
+
+  @spec time_since_boot_s() :: number()
+  def time_since_boot_s() do
+    :erlang.system_time(:millisecond) * 1.0e-3
+  end
 end

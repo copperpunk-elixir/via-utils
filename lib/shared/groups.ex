@@ -4,7 +4,7 @@ defmodule ViaUtils.Shared.Groups do
   defmacro airspeed_val, do: :airspeed_val
   defmacro autopilot_control_mode, do: :autopilot_control_mode
   defmacro clear_mission, do: :clear_mission
-  defmacro controller_bodyrate_commands, do: :controller_bodyrate_commands
+  defmacro controller_bodyrate_throttle_commands, do: :controller_bodyrate_throttle_commands
   defmacro controller_direct_actuator_output, do: :controller_direct_actuator_output
   defmacro command_channels, do: :command_channels
   defmacro commands_for_current_pilot_control_level, do: :commands_for_current_pcl
@@ -42,6 +42,6 @@ defmodule ViaUtils.Shared.Groups do
   defmacro virtual_uart_downward_range, do: :virtual_uart_downward_range
   defmacro virtual_uart_dt_accel_gyro, do: :virtual_uart_dt_accel_gyro
   defmacro virtual_uart_gps, do: :virtual_uart_gps
-  defmacro virtual_telemetry, do: :virtual_telemetry
+  defmacro virtual_uart_telemetry, do: :virtual_telemetry
   defmacro virtual_uart_actuator_output, do: :virtual_uart_actuator_output
 end

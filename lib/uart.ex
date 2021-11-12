@@ -70,4 +70,29 @@ defmodule ViaUtils.Uart do
       end
     end
   end
+
+  @spec real_ubx_write() :: function()
+  def real_ubx_write() do
+    fn ubx_message, uart_ref ->
+      Circuits.UART.write(uart_ref, ubx_message)
+    end
+  end
+
+  @spec virtual_ubx_write(any(), any()) :: function()
+  def virtual_ubx_write(group, operator) do
+    fn ubx_message, _ ->
+      # Logger.debug("group, msg: #{inspect(group)}/#{inspect(ubx_message)}")
+
+      # if is_nil(ubx_message) do
+      #   Logger.warn("#{operator} nil message")
+      # else
+        ViaUtils.Comms.send_local_msg_to_group(
+          operator,
+          {:circuits_uart, 0, ubx_message},
+          self(),
+          group
+        )
+      # end
+    end
+  end
 end
