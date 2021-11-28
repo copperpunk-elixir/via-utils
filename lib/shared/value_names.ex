@@ -21,6 +21,9 @@ defmodule ViaUtils.Shared.ValueNames do
   defmacro itow_s, do: :itow_s
   defmacro latitude_rad, do: :latitude_rad
   defmacro longitude_rad, do: :longitude_rad
+  defmacro message_class, do: :message_class
+  defmacro message_frequency_hz, do: :message_frequency_hz
+  defmacro message_id, do: :message_id
   defmacro pilot_control_level, do: :pilot_control_level
   defmacro pitch_rad, do: :pitch_rad
   defmacro pitchrate_rps, do: :pitchrate_rps

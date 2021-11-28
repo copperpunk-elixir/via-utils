@@ -1,5 +1,6 @@
 defmodule ViaUtils.Shared.Groups do
   @processed :processed
+  @ubx :ubx
 
   defmacro airspeed_val, do: :airspeed_val
   defmacro autopilot_control_mode, do: :autopilot_control_mode
@@ -36,12 +37,21 @@ defmodule ViaUtils.Shared.Groups do
   defmacro sorter_pilot_control_level_and_goals, do: :sorter_pcl_and_goals
   defmacro speed_course_altitude_sideslip_cmd, do: :scas_cmd
   defmacro speed_courserate_altituderate_sideslip_cmd, do: :s_cdot_adot_s_cmd
+  defmacro subscribe_to_msg, do: :subscribe_to_msg
+  defmacro telemetry_ground_send_message(), do: :telemetry_ground_send_msg
   defmacro val_prefix, do: @processed
+  defmacro ubx_attitude_attrate_val, do: {@ubx, :attitude_attrate_val}
+  defmacro ubx_attitude_thrust_cmd, do: {@ubx, :attitude_thrust_cmd}
+  defmacro ubx_bodyrate_throttle_cmd, do: {@ubx, :bodyrate_throttle_cmd}
+  defmacro ubx_position_velocity_val, do: {@ubx, :position_velocity_val}
+  defmacro ubx_speed_course_altitude_sideslip_cmd, do: {@ubx, :scas_cmd}
+  defmacro ubx_speed_courserate_altrate_sideslip_cmd, do: {@ubx, :scrars_cmd}
   defmacro virtual_uart_command_rx, do: :virtual_uart_command_rx
   defmacro virtual_uart_companion, do: :virtual_uart_companion
   defmacro virtual_uart_downward_range, do: :virtual_uart_downward_range
   defmacro virtual_uart_dt_accel_gyro, do: :virtual_uart_dt_accel_gyro
   defmacro virtual_uart_gps, do: :virtual_uart_gps
-  defmacro virtual_uart_telemetry, do: :virtual_telemetry
+  defmacro virtual_uart_telemetry_ground, do: :virtual_telemetry_ground
+  defmacro virtual_uart_telemetry_vehicle, do: :virtual_telemetry_vehicle
   defmacro virtual_uart_actuator_output, do: :virtual_uart_actuator_output
 end
