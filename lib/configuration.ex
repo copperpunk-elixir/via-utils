@@ -13,7 +13,32 @@ defmodule ViaUtils.Configuration do
 
     Enum.reduce(nested_key_values, default_conf, fn {new_key, new_value}, acc ->
       Logger.info("new k/v: #{inspect(new_key)}/#{inspect(new_value)}")
-      put_in(acc, new_key, new_value)
+      usable_key = get_first_matching_key(acc, new_key)
+      usable_value = get_in(acc, usable_key)
+      # last_key = Enum.take(usable_key, max(length(usable_key)-1,1))
+      Logger.debug("usable key: #{inspect(usable_key)}")
+      last_key =
+        (new_key -- usable_key)
+        |> Enum.at(0,usable_key)
+
+      # last_value = get_in(acc, last_key)
+      Logger.debug("usable value/last key: #{inspect(usable_value)}/#{inspect(last_key)}")
+      last_value =
+        cond do
+        is_map(usable_value) ->
+          Logger.warn("map")
+          Map.put(usable_value, last_key, new_value)
+        Keyword.keyword?(usable_value) ->
+          Logger.warn("list")
+          Keyword.put(usable_value, last_key, new_value)
+        true ->
+          new_value
+        end
+
+      Logger.debug("last k/v: #{inspect(last_key)}/#{inspect(last_value)}")
+      put_in(acc, usable_key, last_value)
+      # Logger.debug("usable key: #{inspect(usable_key)}")
+      # put_in(acc, usable_key, new_value)
     end)
   end
 

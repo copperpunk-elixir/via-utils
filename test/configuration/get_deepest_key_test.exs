@@ -77,16 +77,16 @@ defmodule ViaUtils.Configuration.GetDeepestKeyTest do
   end
 
   test "Put_in value with no existing key " do
-    default_conf = [a: %{x: 0}]
-    new_conf = [a: %{y: 0}, b: [1, 2, 3]]
+    default_conf = [a: %{x: 0}, b: []]
+    new_conf = [a: %{y: 0}, b: [c: [1, 2, 3]]]
 
-    matching_key = ViaUtils.Configuration.get_first_matching_key(default_conf, [:b])
+    matching_key = ViaUtils.Configuration.get_first_matching_key(default_conf, [:b, :c])
     assert matching_key == [:b]
 
     merged_conf = ViaUtils.Configuration.merge_configuration_files(default_conf, new_conf)
     Logger.debug("merged conf: #{inspect(merged_conf)}")
     assert merged_conf[:a][:y] == 0
-    assert merged_conf[:b] == [1, 2, 3]
+    assert merged_conf[:b][:c] == [1, 2, 3]
     Process.sleep(100)
   end
 end
