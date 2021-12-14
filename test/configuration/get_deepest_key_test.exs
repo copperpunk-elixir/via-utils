@@ -77,8 +77,8 @@ defmodule ViaUtils.Configuration.GetDeepestKeyTest do
   end
 
   test "Put_in value with no existing key " do
-    default_conf = [a: %{x: 0}, b: []]
-    new_conf = [a: %{y: 0}, b: [c: [1, 2, 3]]]
+    default_conf = [a: %{x: 0}, b: [], c: %{}, d: %{u: 5}]
+    new_conf = [a: %{y: 0}, b: [c: [1, 2, 3]], c: %{y: 11, z: [zz: 10]}, d: %{u: 6}]
 
     matching_key = ViaUtils.Configuration.get_first_matching_key(default_conf, [:b, :c])
     assert matching_key == [:b]
